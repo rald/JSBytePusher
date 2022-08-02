@@ -1,23 +1,55 @@
-var canvas=document.getElementById("canvas");
-var ctx=canvas.getContext("2d");
+var canvas;
+var ctx;
 
-var MEM=new Uint8Array(1024*1024*16);
-var PAL=new Array(256);
-
+var MEM;
+var PAL;
 var PKEY=0;
 var PPC=2;
 var PGFX=5;
 var PSND=6;
 
+var PC=0,A=0,B=0,C=0;
+
+var KEY=0x0000;
+
+var cycles=0;
 var ps=1;
 
 var cx=0,cy=0;
 var ox=0,oy=0;
 
-var x=new Array(3),y=new Array(3);
-var nx=new Array(3),ny=new Array(3);
-var f=0;
-var key=0x0000;
+function exec(PPC) {
+
+  ctx.fillStyle="#c0c0c0";
+  ctx.fillRect(0,0,256,64);
+  
+  ctx.font="32px monospace";
+  ctx.fillStyle="#000000";
+  ctx.fillText(cycles,32,32);
+
+  var i=65536;
+  
+  do {
+
+    PC=MEM[PPC+0]<<16+MEM[PPC+1]<<8+MEM[PPC+2];  
+    A=MEM[PC+0]<<16+MEM[PC+1]<<8+MEM[PC+2];
+    B=MEM[PC+3]<<16+MEM[PC+4]<<8+MEM[PC+5];
+    C=MEM[PC+6]<<16+MEM[PC+7]<<8+MEM[PC+8];
+
+    if(A==B && PC==C) break; 
+
+    MEM[B]=MEM[A];
+    
+    MEM[PPC+0]=MEM[C+0];
+    MEM[PPC+1]=MEM[C+1];
+    MEM[PPC+2]=MEM[C+2];
+
+  } while(--i);
+  
+  cycles++;
+  
+}
+
 
 function rnd(n) {
 	return Math.floor(Math.random()*n);
@@ -116,25 +148,6 @@ function dim(ox,oy,x0,y0,x1,y1) {
   
 }
 
-function exec(PPC) {
-  i=65536;
-  while(i>0) {
-
-    var PC=MEM[PPC+2]*256*256+MEM[PPC+1]*256+MEM[PPC+0];
-
-    var A=MEM[PC+0+2]*256*256+MEM[PC+0+1]*256+MEM[PC+0+0];
-    var B=MEM[PC+1+2]*256*256+MEM[PC+1+1]*256+MEM[PC+1+0];
-    var C=MEM[PC+2+2]*256*256+MEM[PC+2+1]*256+MEM[PC+2+0];
-    
-    MEM[B]=MEM[A];
-
-    MEM[PPC+0]=MEM[C+0];
-    MEM[PPC+1]=MEM[C+1];
-    MEM[PPC+2]=MEM[C+2];
-
-    i--;
-  }
-}
 
 function load(url) {
   var byteArray = [];
@@ -151,60 +164,60 @@ function load(url) {
 
 function keydown(e) {
   switch(e.which) {
-    case 49: key|=0x0001; break;
-    case 50: key|=0x0002; break;
-    case 51: key|=0x0004; break;
-    case 52: key|=0x0008; break;
-    case 81: key|=0x0010; break;
-    case 87: key|=0x0020; break;
-    case 69: key|=0x0040; break;
-    case 82: key|=0x0080; break;
-    case 65: key|=0x0100; break;
-    case 83: key|=0x0200; break;
-    case 68: key|=0x0400; break;
-    case 70: key|=0x0800; break;
-    case 90: key|=0x1000; break;
-    case 88: key|=0x2000; break;
-    case 67: key|=0x4000; break;
-    case 86: key|=0x8000; break;
+    case 49: KEY|=0x0001; break;
+    case 50: KEY|=0x0002; break;
+    case 51: KEY|=0x0004; break;
+    case 52: KEY|=0x0008; break;
+    case 81: KEY|=0x0010; break;
+    case 87: KEY|=0x0020; break;
+    case 69: KEY|=0x0040; break;
+    case 82: KEY|=0x0080; break;
+    case 65: KEY|=0x0100; break;
+    case 83: KEY|=0x0200; break;
+    case 68: KEY|=0x0400; break;
+    case 70: KEY|=0x0800; break;
+    case 90: KEY|=0x1000; break;
+    case 88: KEY|=0x2000; break;
+    case 67: KEY|=0x4000; break;
+    case 86: KEY|=0x8000; break;
   }
 }
 
 function keyup(e) {
   switch(e.which) {
-    case 49: key&=0xFFFE; break;
-    case 50: key&=0xFFFD; break;
-    case 51: key&=0xFFFB; break;
-    case 52: key&=0xFFF7; break;
-    case 81: key&=0xFFEF; break;
-    case 87: key&=0xFFDF; break;
-    case 69: key&=0xFFBF; break;
-    case 82: key&=0xFF7F; break;
-    case 65: key&=0xFEFF; break;
-    case 83: key&=0xFDFF; break;
-    case 68: key&=0xFBFF; break;
-    case 70: key&=0xF7FF; break;
-    case 90: key&=0xEFFF; break;
-    case 88: key&=0xDFFF; break;
-    case 67: key&=0xBFFF; break;
-    case 86: key&=0x7FFF; break;
+    case 49: KEY&=0xFFFE; break;
+    case 50: KEY&=0xFFFD; break;
+    case 51: KEY&=0xFFFB; break;
+    case 52: KEY&=0xFFF7; break;
+    case 81: KEY&=0xFFEF; break;
+    case 87: KEY&=0xFFDF; break;
+    case 69: KEY&=0xFFBF; break;
+    case 82: KEY&=0xFF7F; break;
+    case 65: KEY&=0xFEFF; break;
+    case 83: KEY&=0xFDFF; break;
+    case 68: KEY&=0xFBFF; break;
+    case 70: KEY&=0xF7FF; break;
+    case 90: KEY&=0xEFFF; break;
+    case 88: KEY&=0xDFFF; break;
+    case 67: KEY&=0xBFFF; break;
+    case 86: KEY&=0x7FFF; break;
   }
 }
 
-function updateKeys(key) {
-  MEM[PKEY+0]=(key >> 8) & 0xFF;
-  MEM[PKEY+1]=key & 0xFF;
+function updateKeys(KEY) {
+  MEM[PKEY+0]=(KEY >> 8) & 0xFF;
+  MEM[PKEY+1]=KEY & 0xFF;
 }
 
 function update() {
 
-  updateKeys(key);
+  updateKeys(KEY);
 
   exec(PPC);
   
 /*  
   for(var i=0;i<16;i++) {
-    if(key&(1<<i)) 
+    if(KEY&(1<<i)) 
       fillRect(i%4*64,Math.floor(i/4)*64,64,64,215);
     else {       
       fillRect(i%4*64,Math.floor(i/4)*64,64,64,0);
@@ -222,6 +235,40 @@ function update() {
 }
 
 function main() {
+
+  canvas=document.getElementById("canvas");
+  ctx=canvas.getContext("2d");
+  
+  MEM=new Uint8Array(1024*1024*16);
+  PAL=new Array(256);
+
+
+PKEY=0;
+PPC=2;
+PGFX=5;
+PSND=6;
+
+KEY=0x0000;
+
+PC=0,A=0,B=0,C=0;
+
+cycles=0;
+
+ps=1;
+
+cx=0,cy=0;
+ox=0,oy=0;
+
+x=new Array(3);
+y=new Array(3);
+nx=new Array(3);
+ny=new Array(3);
+
+f=0;
+
+
+
+
 
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -260,7 +307,7 @@ function main() {
   MEM[PPC+2]=1;
 */
 
-  MEM=load("pt.bp");
+  MEM=load("kt.bp");
 
 	ctx.fillStyle="#FFFFFF";
 	ctx.fillRect(0,0,canvas.width,canvas.height);
