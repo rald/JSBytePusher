@@ -3,10 +3,10 @@ var ctx;
 
 var MEM;
 var PAL;
-var PKEY=0;
-var PPC=2;
-var PGFX=5;
-var PSND=6;
+var PKEY;
+var PPC;
+var PGFX;
+var PSND;
 
 var PC=0,A=0,B=0,C=0;
 
@@ -65,12 +65,12 @@ function readPoint(x,y) {
 
 
 function drawScreen(ox,oy,x0,y0,x1,y1) {
+  ox=parseInt(ox,10);
+  oy=parseInt(oy,10);
   x0=parseInt(x0,10);
   y0=parseInt(y0,10);
   x1=parseInt(x1,10);
   y1=parseInt(y1,10);
-  ox=parseInt(ox,10);
-  oy=parseInt(oy,10);
 
   if(x0>x1) { var t=x0; x0=x1; x1=t; }
   if(y0>y1) { var t=y0; y0=y1; y1=t; }
@@ -149,7 +149,7 @@ function dim(ox,oy,x0,y0,x1,y1) {
 }
 
 
-function load(url) {
+function loadbin(url) {
   var byteArray = [];
   var req = new XMLHttpRequest();
   req.open('GET', url, false);
@@ -159,7 +159,7 @@ function load(url) {
   for (var i = 0; i < req.responseText.length; ++i) {
     byteArray.push(req.responseText.charCodeAt(i) & 0xff)
   }
-  return byteArray;
+  return Uint8Array.from(byteArray);
 }
 
 function keydown(e) {
@@ -216,6 +216,7 @@ function update() {
   exec(PPC);
   
 /*  
+
   for(var i=0;i<16;i++) {
     if(KEY&(1<<i)) 
       fillRect(i%4*64,Math.floor(i/4)*64,64,64,215);
@@ -225,7 +226,7 @@ function update() {
     }
   }  
   
-  */
+*/
 
   drawScreen(ox,oy,0,0,255,255);
   
@@ -236,39 +237,24 @@ function update() {
 
 function main() {
 
-  canvas=document.getElementById("canvas");
-  ctx=canvas.getContext("2d");
-  
   MEM=new Uint8Array(1024*1024*16);
   PAL=new Array(256);
+  
+  PKEY=0;
+  PPC=2;
+  PGFX=5;
+  PSND=6;
+  
+  KEY=0x0000;
+  
+  PC=0,A=0,B=0,C=0;
+  
+  cycles=0;
+  
+  ps=1;
 
-
-PKEY=0;
-PPC=2;
-PGFX=5;
-PSND=6;
-
-KEY=0x0000;
-
-PC=0,A=0,B=0,C=0;
-
-cycles=0;
-
-ps=1;
-
-cx=0,cy=0;
-ox=0,oy=0;
-
-x=new Array(3);
-y=new Array(3);
-nx=new Array(3);
-ny=new Array(3);
-
-f=0;
-
-
-
-
+  canvas=document.getElementById("canvas");
+  ctx=canvas.getContext("2d");
 
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
@@ -301,13 +287,12 @@ f=0;
 
 /*
   MEM[PGFX]=1;
-  
   MEM[PPC+0]=0;
   MEM[PPC+1]=0;
   MEM[PPC+2]=1;
 */
 
-  MEM=load("kt.bp");
+  MEM=loadbin("pt.bp");
 
 	ctx.fillStyle="#FFFFFF";
 	ctx.fillRect(0,0,canvas.width,canvas.height);
