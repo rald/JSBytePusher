@@ -55,7 +55,7 @@ function rnd(n) {
 }
 
 function drawPoint(x,y,c) {
-  MEM[ MEM[PGFX]*256*256+parseInt(y,10)*256+parseInt(x,10) ]=parseInt(c)%256;
+  MEM[ MEM[PGFX]*256*256+parseInt(y,10)*256+parseInt(x,10) ]=parseInt(c,10)%256;
 }
 
 function readPoint(x,y) {
@@ -131,9 +131,9 @@ function loadbin(url) {
   var byteArray = [];
   var req = new XMLHttpRequest();
   req.open('GET', url, false);
-  req.overrideMimeType('text\/plain; charset=x-user-defined');
+  req.overrideMimeType("text\/plain; charset=x-user-defined");
   req.send(null);
-  if (req.status != 200) return byteArray;
+  if (req.status != 200) return Uint8Array.from(byteArray);
   for (var i = 0; i < req.responseText.length; ++i) {
     byteArray.push(req.responseText.charCodeAt(i) & 0xff)
   }
