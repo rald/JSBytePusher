@@ -50,7 +50,6 @@ function exec(PPC) {
   
 }
 
-
 function rnd(n) {
 	return Math.floor(Math.random()*n);
 }
@@ -105,7 +104,6 @@ function fillRect(x,y,w,h,c) {
   }
 }
 
-
 function drawLine(x0,y0,x1,y1,c) {
 
   x0=parseInt(x0,10);
@@ -128,26 +126,6 @@ function drawLine(x0,y0,x1,y1,c) {
     if (e2 < dy) { err += dx; y0 += sy; }
   }
 }
-
-function dim(ox,oy,x0,y0,x1,y1) {
-  x0=parseInt(x0,10);
-  y0=parseInt(y0,10);
-  x1=parseInt(x1,10);
-  y1=parseInt(y1,10);
-  ox=parseInt(ox,10);
-  oy=parseInt(oy,10);
-
-  if(x0>x1) { var t=x0; x0=x1; x1=t; }
-  if(y0>y1) { var t=y0; y0=y1; y1=t; }
-
-  for(var j=y0;j<=y1;j++) {
-    for(var i=x0;i<=x1;i++) {
-      drawPoint(i,j,readPoint(i,j)/1.5);
-    }
-  }
-  
-}
-
 
 function loadbin(url) {
   var byteArray = [];
@@ -229,8 +207,6 @@ function update() {
 */
 
   drawScreen(ox,oy,0,0,255,255);
-  
-
 
   window.requestAnimationFrame(update);
 }
