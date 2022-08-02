@@ -24,7 +24,7 @@ function rnd(n) {
 }
 
 function drawPoint(x,y,c) {
-  MEM[ MEM[PGFX]*256*256+parseInt(y,10)*256+parseInt(x,10) ]=c;
+  MEM[ MEM[PGFX]*256*256+parseInt(y,10)*256+parseInt(x,10) ]=parseInt(c)%256;
 }
 
 function readPoint(x,y) {
@@ -198,7 +198,8 @@ function updateKeys(key) {
 
 function update() {
 
-    
+  updateKeys(key);
+
   exec(PPC);
   
 /*  
@@ -215,7 +216,6 @@ function update() {
 
   drawScreen(ox,oy,0,0,255,255);
   
-  updateKeys(key);
 
 
   window.requestAnimationFrame(update);
